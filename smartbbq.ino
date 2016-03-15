@@ -6,9 +6,10 @@
 #include "ThermistorProbe.h"
 #include "SimpleLed.h"
 #include "math.h"
-#include "SmartDisplay.h"
+#include "Adafruit_LiquidCrystal.h"
 
-#define PROBE1 A6
+
+#define PROBE1 A1
 #define PROBE2 A5
 #define PROBE3 A4
 
@@ -20,7 +21,7 @@
 #define BUTTON_CENTER D3
 #define BUTTON_RIGHT D2
 
-#define FAN1 A1
+#define FAN1 A0
 
 #define LEDCYCLE 300U
 #define ALARMSETDELAY 800U
@@ -47,7 +48,9 @@ unsigned long ledLastMillis = 0;
 unsigned long alarmFirstMillis = 0;
 
 // Define display
-SmartDisplay myLCD(0);
+//SmartDisplay myLCD;
+LiquidCrystal myDisplay(0);
+
 
 // Define buttons
 SimpleButton buttonLeft(BUTTON_LEFT);
@@ -67,9 +70,13 @@ void setup() {
     // init serial
     Serial.begin(9600);
 
+    //setup LCD
+    myDisplay.begin(20, 4);
+    printThis(0,0,"Initializing...");
+    myDisplay.setBacklight(ON);
+
     // Fan test
     pinMode(FAN1, OUTPUT);
-
     digitalWrite(FAN1, LOW);
 
     //initialize PID variables we're linked to
@@ -94,6 +101,10 @@ void setup() {
 
     Spark.variable("fanOutput", &Output, DOUBLE);
 
+    myDisplay.clear();
+    printDisplayLabels();
+    printDisplayProbeMarker();
+
     // Debug delay
     if(DEBUG) {
         delay(3000);
@@ -103,6 +114,7 @@ void setup() {
 void loop() {
     // update display
     updateDisplay();
+    printDisplay();
 
     // check if a button was pressed
     checkButtons();
@@ -124,7 +136,7 @@ void loop() {
     probeAlarmE3 = bbq.getProbeAlarmE(2);
 
     // delay for short period just makes things work nicely
-    delay(1);
+    delay(1000);
 }
 
 void checkButtons() {
@@ -192,4 +204,70 @@ boolean showAlarm() {
     } else {
         return true;
     }
+}
+
+////////////////////////////////////////////////////
+/////// Display functions
+
+void printDisplayProbeMarker(){
+  myDisplay.setCursor(0,bbq.getActiveProbe());
+  myDisplay.print(">");
+}
+
+
+void printDisplayTemp(){
+  myDisplay.setCursor(6,0);
+  myDisplay.print(analogRead(A1));
+  myDisplay.setCursor(6,1);
+  myDisplay.print(analogRead(A5));
+  myDisplay.setCursor(6,2);
+  myDisplay.print(probeTemp3);
+}
+
+void printDisplayAlarm(){
+  myDisplay.setCursor(6,0);
+  myDisplay.print(probeAlarm1);
+  myDisplay.setCursor(6,1);
+  myDisplay.print(probeAlarm2);
+  myDisplay.setCursor(6,2);
+  myDisplay.print(probeAlarm3);
+}
+
+void printDisplayFan(){
+  myDisplay.setCursor(6,3);
+  myDisplay.print(Output);
+  myDisplay.setCursor(14,3);
+  myDisplay.print(Output);
+}
+
+void printThis(int cursorX, int cursorY, String myText){
+  myDisplay.setCursor(cursorX, cursorY);
+  myDisplay.print(myText);
+}
+
+void printDisplayLabels(){
+    myDisplay.setCursor(1,0);
+    myDisplay.print("Pit:");
+    myDisplay.setCursor(1,1);
+    myDisplay.print("M 1:");
+    myDisplay.setCursor(1,2);
+    myDisplay.print("M 2:");
+    myDisplay.setCursor(1,3);
+    myDisplay.print("Fan:");
+    myDisplay.setCursor(12,0);
+    myDisplay.print("/");
+    myDisplay.setCursor(12,1);
+    myDisplay.print("/");
+    myDisplay.setCursor(12,2);
+    myDisplay.print("/");
+    myDisplay.setCursor(12,3);
+    myDisplay.print("/");
+    myDisplay.setCursor(17,3);
+    myDisplay.print("%");
+}
+
+void printDisplay(){
+printDisplayTemp();
+printDisplayAlarm();
+printDisplayFan();
 }

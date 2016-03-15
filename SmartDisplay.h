@@ -9,10 +9,11 @@
 #define ON HIGH
 #define OFF LOW
 
+
 class SmartDisplay
 {
     public:
-        SmartDisplay(uint8_t pin);
+        SmartDisplay();
         void printProbeMarker(uint8_t probeIndex);
         void printTemp(uint8_t probeIndex, double probeTemp);
         void printAlarm(uint8_t probeIndex, double probeAlarm);
@@ -20,7 +21,7 @@ class SmartDisplay
         void backlightOn();
         void backlightOff();
         void backlightToggle();
-        void printThis(int cursorX, int cursory, String myText);
+        void printThis(int cursorX, int cursorY, String myText);
         void updateDisplay();
     private:
         bool _state;

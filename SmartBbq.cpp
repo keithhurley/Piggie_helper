@@ -35,6 +35,10 @@ SmartBbq::~SmartBbq() {
     }
 }
 
+uint8_t  SmartBbq::getActiveProbe(){
+  return _active;
+}
+
 // cycles through probes
 void SmartBbq::select() {
     // turn off old active led

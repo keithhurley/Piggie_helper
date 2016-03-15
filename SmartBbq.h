@@ -21,6 +21,7 @@ class SmartBbq
                 , uint8_t ledPin3
                 , uint8_t fanPin1);
         ~SmartBbq();
+        uint8_t getActiveProbe();
         void select();
         void up();
         void down();
